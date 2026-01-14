@@ -491,6 +491,14 @@ class Trainer:
         
         mesh = self.model.export(export_config)
         
+        # Check if mesh is empty
+        if mesh['v_pos'].shape[0] == 0:
+            print("Warning: No surface found during mesh extraction. "
+                  "The model may not have learned a valid geometry yet. "
+                  "Try training for more steps or adjusting the isosurface threshold.")
+            self.model.train()
+            return None
+        
         if filename is None:
             filename = f"it{self.global_step}-{self.config.isosurface_method}{self.config.isosurface_resolution}.obj"
         

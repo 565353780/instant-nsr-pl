@@ -429,6 +429,12 @@ class NeusModel(nn.Module):
     def export(self, export_config: Dict[str, Any]):
         """Export mesh with optional vertex colors."""
         mesh = self.isosurface()
+        
+        # Check if mesh is empty (no vertices found)
+        if mesh['v_pos'].shape[0] == 0:
+            print("Warning: Empty mesh, skipping vertex color computation.")
+            return mesh
+        
         if export_config.get('export_vertex_color', True):
             device = next(self.parameters()).device
             _, sdf_grad, feature = chunk_batch(

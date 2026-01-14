@@ -81,11 +81,14 @@ class BaseImplicitGeometry(BaseModel):
 
     def isosurface_(self, vmin, vmax):
         def batch_func(x):
+            # Use the device of model parameters instead of self.rank
+            # to ensure data is moved to the correct device
+            device = next(self.parameters()).device
             x = torch.stack([
                 scale_anything(x[...,0], (0, 1), (vmin[0], vmax[0])),
                 scale_anything(x[...,1], (0, 1), (vmin[1], vmax[1])),
                 scale_anything(x[...,2], (0, 1), (vmin[2], vmax[2])),
-            ], dim=-1).to(self.rank)
+            ], dim=-1).to(device)
             rv = self.forward_level(x).cpu()
             cleanup()
             return rv
@@ -104,6 +107,15 @@ class BaseImplicitGeometry(BaseModel):
         if self.config.isosurface is None:
             raise NotImplementedError
         mesh_coarse = self.isosurface_((-self.radius, -self.radius, -self.radius), (self.radius, self.radius, self.radius))
+        
+        # Check if coarse mesh is empty (no vertices found)
+        if mesh_coarse['v_pos'].shape[0] == 0:
+            rank_zero_info("Warning: No surface found in coarse mesh extraction. "
+                          "This may indicate the model hasn't learned a valid geometry yet, "
+                          "or the isosurface threshold is not appropriate. "
+                          "Returning empty mesh.")
+            return mesh_coarse
+        
         vmin, vmax = mesh_coarse['v_pos'].amin(dim=0), mesh_coarse['v_pos'].amax(dim=0)
         vmin_ = (vmin - (vmax - vmin) * 0.1).clamp(-self.radius, self.radius)
         vmax_ = (vmax + (vmax - vmin) * 0.1).clamp(-self.radius, self.radius)
