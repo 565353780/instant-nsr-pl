@@ -33,7 +33,7 @@ class NeuSSystem(BaseSystem):
     
     def preprocess_data(self, batch, stage):
         if 'index' in batch: # validation / testing
-            index = batch['index']
+            index = batch['index'].to(self.dataset.all_images.device)
         else:
             if self.config.model.batch_image_sampling:
                 index = torch.randint(0, len(self.dataset.all_images), size=(self.train_num_rays,), device=self.dataset.all_images.device)
@@ -226,8 +226,8 @@ class NeuSSystem(BaseSystem):
         return {
             'psnr': psnr,
             'index': batch['index']
-        }      
-    
+        }
+
     def test_epoch_end(self, out):
         """
         Synchronize devices.
@@ -254,10 +254,11 @@ class NeuSSystem(BaseSystem):
                 save_format='mp4',
                 fps=30
             )
-            
+
             self.export()
-    
+
     def export(self):
+        print('start export mesh...')
         mesh = self.model.export(self.config.export)
         self.save_mesh(
             f"it{self.global_step}-{self.config.model.geometry.isosurface.method}{self.config.model.geometry.isosurface.resolution}.obj",

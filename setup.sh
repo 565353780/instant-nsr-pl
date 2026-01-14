@@ -7,7 +7,8 @@ pip3 install torch torchvision torchaudio \
   --index-url https://download.pytorch.org/whl/cu124
 
 pip install matplotlib opencv-python imageio imageio-ffmpeg \
-  scipy PyMCubes pyransac3d torch_efficient_distloss tensorboard
+  scipy PyMCubes pyransac3d torch_efficient_distloss tensorboard \
+  trimesh
 
 pip install "pytorch-lightning<2"
 pip install omegaconf==2.2.3

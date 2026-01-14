@@ -9,10 +9,10 @@ DATA_PATH="${HOME}/chLi/Dataset/pixel_align/${SHAPE_ID}/colmap"
 
 python launch.py \
   --config configs/neus-colmap.yaml \
-  --gpu 0 \
+  --gpu 4 \
   --train \
   dataset.root_dir=${DATA_PATH} \
   dataset.scene=${SHAPE_ID} \
-  tag=iter1k \
+  tag=iter50k \
   seed=0 \
-  trainer.max_steps=1000
+  trainer.max_steps=50000
