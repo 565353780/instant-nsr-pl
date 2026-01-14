@@ -1,7 +1,6 @@
-import numpy as np
 import torch
+import numpy as np
 import torch.nn as nn
-import torch.nn.functional as F
 
 from pytorch_lightning.utilities.rank_zero import rank_zero_info
 

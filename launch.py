@@ -42,7 +42,7 @@ def main():
     from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
     from pytorch_lightning.loggers import TensorBoardLogger, CSVLogger
     from utils.callbacks import CodeSnapshotCallback, ConfigSnapshotCallback, CustomProgressBar
-    from utils.misc import load_config    
+    from utils.misc import load_config
 
     # parse YAML config to OmegaConf
     config = load_config(args.config, cli_args=extras)
@@ -89,14 +89,9 @@ def main():
             TensorBoardLogger(args.runs_dir, name=config.name, version=config.trial_name),
             CSVLogger(config.exp_dir, name=config.trial_name, version='csv_logs')
         ]
-    
-    if sys.platform == 'win32':
-        # does not support multi-gpu on windows
-        strategy = 'dp'
-        assert n_gpus == 1
-    else:
-        strategy = 'ddp_find_unused_parameters_false'
-    
+
+    strategy = 'ddp_find_unused_parameters_false'
+
     trainer = Trainer(
         devices=n_gpus,
         accelerator='gpu',
